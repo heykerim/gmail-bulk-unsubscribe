@@ -22,7 +22,7 @@ function makeDialogButton({ visible = true, onClick = () => {} } = {}) {
   };
 }
 
-function loadContentScript({ getRows, getDialogs, now } = {}) {
+function loadContentScript({ getRows, getDialogs, now, hash = '#subscriptions' } = {}) {
   const progress = [];
   let listener;
   let doneResolve;
@@ -55,7 +55,7 @@ function loadContentScript({ getRows, getDialogs, now } = {}) {
     window: {},
     document,
     chrome,
-    location: { hash: '#subscriptions' },
+    location: { hash },
     KeyboardEvent: class KeyboardEvent {},
     getComputedStyle: () => ({ display: 'block', visibility: 'visible' }),
     Date: DateShim,
@@ -71,6 +71,28 @@ test('Manifest does not declare SVG toolbar icons for Chromium', () => {
   const manifest = JSON.parse(read('extension/manifest.json'));
   const declared = JSON.stringify({ icons: manifest.icons, action: manifest.action?.default_icon });
   assert.doesNotMatch(declared, /\.svg/i);
+});
+
+test('Content script recognizes Gmail current #sub route', () => {
+  const row = makeRowButton('one@example.com');
+  const { listener } = loadContentScript({ getRows: () => [row], hash: '#sub' });
+  let response;
+
+  listener({ cmd: 'count' }, null, (r) => { response = r; });
+
+  assert.equal(response?.onPage, true);
+  assert.equal(response?.count, 1);
+});
+
+test('Content script treats unsubscribe rows as page evidence even if Gmail renames the route', () => {
+  const row = makeRowButton('one@example.com');
+  const { listener } = loadContentScript({ getRows: () => [row], hash: '#future-route-name' });
+  let response;
+
+  listener({ cmd: 'count' }, null, (r) => { response = r; });
+
+  assert.equal(response?.onPage, true);
+  assert.equal(response?.count, 1);
 });
 
 test('Content script rejects a second run while one is already active', () => {
@@ -142,6 +164,22 @@ test('Popup disables destructive controls while a run is active', () => {
   assert.match(popup, /previewBtn\.disabled\s*=\s*running/);
   assert.match(popup, /runBtn\.disabled\s*=\s*running/);
   assert.match(popup, /stopBtn\.disabled\s*=\s*!running/);
+});
+
+test('Popup keeps action buttons on one line and uses concise labels', () => {
+  const css = read('extension/popup.css');
+  const html = read('extension/popup.html');
+
+  assert.match(css, /body\s*{[^}]*width:\s*370px/s);
+  assert.match(css, /\.btn\s*{[^}]*white-space:\s*nowrap/s);
+  assert.match(html, />Preview<\/button>/);
+  assert.doesNotMatch(html, /Preview \(dry-run\)/);
+});
+
+test('Editable icon source has a transparent background and 24px Lucide viewBox', () => {
+  const svg = read('extension/icons/icon.svg');
+  assert.match(svg, /viewBox="0 0 24 24"/);
+  assert.doesNotMatch(svg, /<rect\b/i);
 });
 
 test('Bookmarklet previews after loading and docs do not claim injected UI', () => {
