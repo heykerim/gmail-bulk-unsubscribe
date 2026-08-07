@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>Gmail Bulk Unsubscribe</title>
+</head>
+<body>
+  <header>
+    <h1>Bulk Unsubscribe</h1>
+    <p id="status" class="status">Checking page…</p>
+  </header>
+
+  <section class="keep">
+    <label for="keeplist">Protect senders (one per line — substrings of emails)</label>
+    <textarea id="keeplist" rows="4"
+      placeholder="security&#10;receipt&#10;instagram.com&#10;github.com"></textarea>
+    <p class="hint">Any sender whose email contains one of these is skipped.</p>
+  </section>
+
+  <section class="actions">
+    <button id="preview" class="btn btn-secondary">Preview (dry-run)</button>
+    <button id="run" class="btn btn-danger" disabled>Unsubscribe all</button>
+    <button id="stop" class="btn btn-ghost" disabled>Stop</button>
+  </section>
+
+  <section class="log">
+    <div id="summary" class="summary"></div>
+    <ol id="lines" class="lines"></ol>
+  </section>
+
+  <footer>
+    <span>Runs locally · nothing leaves your browser</span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
