@@ -20,11 +20,23 @@ unsubscribe services, which connect to your mailbox and monetize the data.
 
 Pick whichever fits. All share the same logic and the same safety defaults.
 
-### 1. Browser extension (best for non-devs — one click, popup UI)
+### 1. Browser extension (best for non-devs — popup UI)
 
-Load the [`extension/`](extension/) folder unpacked (Chrome/Firefox), or install
-from a store once published. Gives a popup with **Preview**, **Unsubscribe all**,
-**Stop**, and a saved keep-list. See [`extension/README.md`](extension/README.md).
+**Install (no store account needed):**
+
+1. On this repo, click the green **Code** button → **Download ZIP**, then unzip.
+   (Or use a [release ZIP](https://github.com/heykerim/gmail-bulk-unsubscribe/releases) if one is attached.)
+2. **Chrome / Edge / Brave:** go to `chrome://extensions`, turn on
+   **Developer mode**, click **Load unpacked**, and select the `extension/`
+   folder from the unzip.
+3. **Firefox:** go to `about:debugging#/runtime/this-firefox`, click **Load
+   Temporary Add-on…**, and pick `extension/manifest.json`.
+4. Open **Gmail → Manage subscriptions** and click the extension icon. You get a
+   popup with **Preview**, **Unsubscribe all**, **Stop**, and a saved keep-list.
+
+Full details in [`extension/README.md`](extension/README.md). There's no "Add to
+Chrome" button because it isn't published to a store (see
+[Maintenance](#maintenance)).
 
 ### 2. Userscript (one click, most reliable without an extension)
 
@@ -122,6 +134,21 @@ also the exact shape of the **"self-XSS"** scam Google warns about when it says
   the Unsubscribe buttons on the subscriptions page.
 - Never paste a *minified* or obfuscated version someone hands you. If you can't
   read it, don't run it.
+
+---
+
+## Maintenance
+
+This is a community drop, shared as-is. It isn't actively maintained and isn't
+published to any extension store. Gmail changes its markup from time to time, so
+a selector may eventually need updating — the fix is documented under
+[Troubleshooting](#troubleshooting) (find the new `jscontroller` value and
+update one line).
+
+**Pull requests welcome**, especially for updated selectors or icons — see
+[CONTRIBUTING.md](CONTRIBUTING.md) for the two-minute selector-fix guide. If it
+breaks and no PR has fixed it yet, the Troubleshooting section tells you how to
+patch it yourself.
 
 ---
 
