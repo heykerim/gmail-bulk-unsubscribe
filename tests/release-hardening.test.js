@@ -84,7 +84,8 @@ test('Content script rejects a second run while one is already active', () => {
   listener({ cmd: 'run', opts: { dryRun: false, keepList: [] } }, null, (r) => { second = r; });
 
   assert.equal(first?.started, true);
-  assert.deepEqual(second, { started: false, reason: 'running' });
+  assert.equal(second?.started, false);
+  assert.equal(second?.reason, 'running');
 });
 
 test('Content script ignores hidden stale dialog buttons', async () => {
