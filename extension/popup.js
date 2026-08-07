@@ -44,7 +44,7 @@ async function refreshStatus() {
   try {
     const res = await chrome.tabs.sendMessage(tab.id, { cmd: 'count' });
     if (!res.onPage) {
-      setStatus('Go to Manage subscriptions (#subscriptions).', 'error');
+      setStatus('Go to Gmail → Manage subscriptions.', 'error');
       previewBtn.disabled = true;
       runBtn.disabled = true;
       stopBtn.disabled = true;
