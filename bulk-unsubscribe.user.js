@@ -12,7 +12,6 @@
 (function () {
   'use strict';
 
-  // ---- config ----
   const KEEP_LIST = [
     // substrings of sender emails to PROTECT (case-insensitive), e.g.:
     // 'instagram.com', 'linkedin.com', 'github.com', 'security', 'receipt',
@@ -21,6 +20,7 @@
   const DIALOG_TIMEOUT_MS = 3000;
 
   let cancelled = false;
+  let running = false;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const onSubsPage = () => location.hash.includes('subscriptions');
 
@@ -28,54 +28,123 @@
     [...document.querySelectorAll('button[jscontroller="PIVayb"]')];
   const senderEmail = (btn) =>
     btn.closest('[data-email]')?.dataset.email || '(unknown)';
+
+  function isVisible(el) {
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    const style = getComputedStyle(el);
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      style.display !== 'none' &&
+      style.visibility !== 'hidden'
+    );
+  }
+
   const isKept = (email) =>
     KEEP_LIST.some((k) => email.toLowerCase().includes(k.toLowerCase()));
+
+  const findRowButtonByEmail = (email) =>
+    getRowButtons().find((btn) => senderEmail(btn) === email) || null;
 
   async function waitForDialogOk() {
     const start = Date.now();
     while (Date.now() - start < DIALOG_TIMEOUT_MS) {
-      const ok = document.querySelector('button[data-mdc-dialog-action="ok"]');
+      const ok = [...document.querySelectorAll('button[data-mdc-dialog-action="ok"]')]
+        .find(isVisible);
       if (ok) return ok;
       await sleep(150);
     }
     return null;
   }
 
+  function dismissStrayDialog() {
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+    );
+  }
+
   async function run({ dryRun }) {
-    cancelled = false;
-    const all = getRowButtons();
-    if (!all.length) {
-      alert('Found 0 senders. Are you on the Manage subscriptions page?');
+    if (running) {
+      alert('A bulk unsubscribe run is already in progress.');
       return;
     }
-    if (!dryRun) {
-      const ok = confirm(
-        `Unsubscribe from ${all.length} senders?\n\n` +
-          `${KEEP_LIST.length} keep-list rule(s) active. This cannot be undone.`
-      );
-      if (!ok) return;
-    }
 
-    let done = 0, kept = 0, skipped = 0;
-    for (const btn of all) {
-      if (cancelled) break;
-      const email = senderEmail(btn);
-      if (isKept(email)) { kept++; console.log(`⏭ kept: ${email}`); continue; }
-      if (dryRun) { done++; console.log(`○ would unsubscribe: ${email}`); continue; }
+    running = true;
+    cancelled = false;
 
-      btn.scrollIntoView({ block: 'center' });
-      btn.click();
-      const okBtn = await waitForDialogOk();
-      if (okBtn) { okBtn.click(); done++; console.log(`✔ ${done}. ${email}`); }
-      else {
-        skipped++; console.log(`⚠ skipped: ${email}`);
-        document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    try {
+      const initialButtons = getRowButtons();
+      if (!initialButtons.length) {
+        alert('Found 0 senders. Are you on the Manage subscriptions page?');
+        return;
       }
-      await sleep(DELAY_MS);
+
+      const targets = initialButtons.map((btn) => ({ email: senderEmail(btn), fallback: btn }));
+
+      if (!dryRun) {
+        const ok = confirm(
+          `Unsubscribe from ${targets.length} senders?\n\n` +
+            `${KEEP_LIST.length} keep-list rule(s) active. This cannot be undone.`
+        );
+        if (!ok) return;
+      }
+
+      let done = 0, kept = 0, skipped = 0;
+      for (const target of targets) {
+        if (cancelled) break;
+        const { email } = target;
+
+        if (isKept(email)) {
+          kept++;
+          console.log(`⏭ kept: ${email}`);
+          continue;
+        }
+        if (dryRun) {
+          done++;
+          console.log(`○ would unsubscribe: ${email}`);
+          continue;
+        }
+
+        const btn = email === '(unknown)'
+          ? target.fallback
+          : findRowButtonByEmail(email);
+
+        if (!btn) {
+          skipped++;
+          console.log(`⚠ skipped (row disappeared after Gmail rerendered): ${email}`);
+          continue;
+        }
+
+        try {
+          btn.scrollIntoView({ block: 'center' });
+          btn.click();
+          const okBtn = await waitForDialogOk();
+          if (okBtn) {
+            okBtn.click();
+            done++;
+            console.log(`✔ ${done}. ${email}`);
+          } else {
+            skipped++;
+            console.log(`⚠ skipped (no visible dialog appeared): ${email}`);
+            dismissStrayDialog();
+          }
+        } catch (error) {
+          skipped++;
+          console.log(`⚠ skipped (${error?.message || 'unexpected error'}): ${email}`);
+          dismissStrayDialog();
+        }
+
+        await sleep(DELAY_MS);
+      }
+
+      const msg = `${dryRun ? 'Would unsubscribe' : 'Unsubscribed'} ${done}, kept ${kept}, skipped ${skipped}.` +
+        (cancelled ? ' (stopped early)' : '');
+      console.log(`%c${msg}`, 'color:#0a0;font-size:14px');
+      if (!dryRun) alert(msg);
+    } finally {
+      running = false;
     }
-    const msg = `${dryRun ? 'Would unsubscribe' : 'Unsubscribed'} ${done}, kept ${kept}, skipped ${skipped}.`;
-    console.log(`%c${msg}`, 'color:#0a0;font-size:14px');
-    if (!dryRun) alert(msg);
   }
 
   function injectButton() {
@@ -103,7 +172,6 @@
     document.body.appendChild(bar);
   }
 
-  // Gmail is a SPA; re-check on hash changes and periodically.
   window.addEventListener('hashchange', injectButton);
   setInterval(injectButton, 1500);
   injectButton();
