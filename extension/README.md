@@ -37,27 +37,32 @@ takes about a minute:
 | `manifest.json` | MV3 manifest (Chrome + Firefox via `browser_specific_settings`) |
 | `content.js` | Runs on Gmail; holds the unsubscribe logic; talks to the popup |
 | `popup.html` / `popup.css` / `popup.js` | The toolbar popup UI |
-| `icons/` | Toolbar icons (see note below) |
+| `icons/icon16.png` / `icon32.png` / `icon48.png` / `icon128.png` | Raster toolbar/extension icons |
+| `icons/icon.svg` | Lucide source artwork kept for future icon exports |
 
 ## Icons
 
-Ships with `icons/icon.svg` — the [Lucide](https://lucide.dev) `mail-x` glyph
-(ISC License), which Chrome and Firefox MV3 accept directly, so no PNG export is
-needed. To use your own icon, replace `icon.svg` (or point the `icons` /
-`action.default_icon` keys in `manifest.json` at your own PNGs). Removing those
-keys entirely makes the extension load with the browser's default icon.
+The manifest uses PNG icons at 16, 32, 48, and 128 px for Chromium
+compatibility. `icons/icon.svg` is kept as the editable source artwork, but it
+is not referenced by the manifest because Chromium extension manifests do not
+support SVG files for declared extension icons.
 
-> Chrome shows a console note preferring raster icons for the toolbar; the SVG
-> still renders. If you want pixel-perfect toolbar icons, export `icon.svg` to
-> `icon16.png` / `icon48.png` / `icon128.png` and update the manifest.
+The artwork is the [Lucide](https://lucide.dev) `mail-x` glyph. See
+[`../THIRD_PARTY_LICENSES.md`](../THIRD_PARTY_LICENSES.md) for its ISC license
+notice.
 
 ## How it works
 
-The popup sends a message to `content.js`, which finds each sender's row button
-(`button[jscontroller="PIVayb"]`), clicks it, waits for the confirmation
-dialog's `button[data-mdc-dialog-action="ok"]`, clicks it, and streams progress
-back to the popup. Keep-list entries (substrings of sender emails) are skipped.
-Dry-run mode only reports; it changes nothing.
+The popup sends a message to `content.js`, which collects sender identities from
+`button[jscontroller="PIVayb"]`, then re-resolves each sender's row button before
+clicking it. That avoids stale DOM nodes if Gmail rerenders the list after an
+unsubscribe. It waits for a **visible** confirmation dialog button
+(`button[data-mdc-dialog-action="ok"]`), clicks it, and streams progress back to
+the popup. Keep-list entries (substrings of sender emails) are skipped. Dry-run
+mode only reports; it changes nothing.
+
+Only one run can be active at a time. While a batch is running, Preview and
+Unsubscribe all are disabled and Stop is enabled.
 
 ---
 
@@ -73,4 +78,3 @@ These steps are for whoever maintains/forks this project, not end users:
 Both stores scrutinize permissions. This extension only requests `scripting`,
 `activeTab`, `storage`, and host access to `mail.google.com` — keep it that
 minimal to speed review.
-

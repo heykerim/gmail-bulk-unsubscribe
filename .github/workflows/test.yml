@@ -1,0 +1,55 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run regression tests
+        run: node --test tests/release-hardening.test.js
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check extension/content.js
+          node --check extension/popup.js
+          node --check unsubscribe.js
+          node --check bulk-unsubscribe.user.js
+
+      - name: Validate manifest JSON
+        run: node -e "JSON.parse(require('node:fs').readFileSync('extension/manifest.json', 'utf8'))"
+
+      - name: Validate PNG icon dimensions
+        run: |
+          python3 - <<'PY'
+          import struct
+          from pathlib import Path
+
+          expected = {
+              'icon16.png': (16, 16),
+              'icon32.png': (32, 32),
+              'icon48.png': (48, 48),
+              'icon128.png': (128, 128),
+          }
+
+          for name, size in expected.items():
+              data = (Path('extension/icons') / name).read_bytes()
+              assert data[:8] == b'\x89PNG\r\n\x1a\n', f'{name}: invalid PNG signature'
+              width, height = struct.unpack('>II', data[16:24])
+              assert (width, height) == size, f'{name}: expected {size}, got {(width, height)}'
+              print(f'{name}: {width}x{height}')
+          PY

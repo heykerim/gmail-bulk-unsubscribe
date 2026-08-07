@@ -1,9 +1,9 @@
 # Bookmarklet install
 
 A bookmarklet is a bookmark whose URL is JavaScript. Click it while on Gmail's
-**Manage subscriptions** page and it loads the tool, then previews (dry-run) what
-it would unsubscribe. It does **not** unsubscribe anything on its own — you
-confirm in the console or with the injected buttons.
+**Manage subscriptions** page and it loads the tool from GitHub, then runs the
+safe preview (`unsubAll()`). It does **not** unsubscribe anything on its own —
+you still explicitly run `unsubAll({ dryRun: false })` in the console to act.
 
 ## Install (drag-and-drop)
 
@@ -16,17 +16,20 @@ confirm in the console or with the injected buttons.
 
 ## Bookmarklet URL
 
-> Replace the username in the URL below if you fork this. It loads the raw
-> `unsubscribe.js` from the published repo.
+> Replace the username in the URL below if you fork this. It retrieves the
+> public `unsubscribe.js` file from this repo when you click the bookmark.
 
 ```
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/heykerim/gmail-bulk-unsubscribe/main/unsubscribe.js';document.body.appendChild(s);})();
+javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/heykerim/gmail-bulk-unsubscribe/main/unsubscribe.js';s.onload=function(){unsubAll();s.remove();};s.onerror=function(){console.error('Gmail Bulk Unsubscribe: GitHub script load was blocked. Use the console or userscript method instead.');};document.body.appendChild(s);})();
 ```
 
-### Note on raw GitHub + CSP
+### Privacy and Content-Security-Policy
 
-Gmail's Content-Security-Policy may block loading an external script via
-`raw.githubusercontent.com`. If the bookmarklet does nothing, fall back to the
-**console snippet** (copy `unsubscribe.js` and paste it directly), which always
-works. The userscript version (Tampermonkey) is the most reliable one-click
-option and is not subject to this restriction.
+The bookmarklet makes one third-party request to `raw.githubusercontent.com` to
+retrieve the public script. It does **not** upload Gmail data, message content,
+credentials, or OAuth tokens to GitHub (or anywhere else).
+
+Gmail's Content-Security-Policy may block loading that external script. If the
+bookmarklet does nothing, fall back to the **console snippet** (copy
+`unsubscribe.js` and paste it directly). The userscript version (Tampermonkey)
+is the most reliable one-click option and is not subject to this restriction.
