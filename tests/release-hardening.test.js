@@ -67,6 +67,46 @@ function loadContentScript({ getRows, getDialogs, now, hash = '#subscriptions' }
   return { listener, progress, done };
 }
 
+function loadUserscript({ getRows, hash = '#sub' } = {}) {
+  let appended = 0;
+  const makeElement = () => ({
+    style: {},
+    appendChild() {},
+    onclick: null,
+    textContent: '',
+    id: '',
+  });
+
+  const document = {
+    querySelectorAll(selector) {
+      if (selector === 'button[jscontroller="PIVayb"]') return getRows ? getRows() : [];
+      return [];
+    },
+    getElementById() { return null; },
+    createElement: makeElement,
+    body: {
+      appendChild() { appended += 1; },
+      dispatchEvent() {},
+    },
+  };
+
+  const context = {
+    window: { addEventListener() {} },
+    document,
+    location: { hash },
+    setInterval() {},
+    setTimeout: (fn) => setImmediate(fn),
+    alert() {},
+    confirm() { return false; },
+    KeyboardEvent: class KeyboardEvent {},
+    getComputedStyle: () => ({ display: 'block', visibility: 'visible' }),
+    console,
+  };
+
+  vm.runInNewContext(read('bulk-unsubscribe.user.js'), context, { filename: 'bulk-unsubscribe.user.js' });
+  return { appended: () => appended };
+}
+
 test('Manifest does not declare SVG toolbar icons for Chromium', () => {
   const manifest = JSON.parse(read('extension/manifest.json'));
   const declared = JSON.stringify({ icons: manifest.icons, action: manifest.action?.default_icon });
@@ -93,6 +133,15 @@ test('Content script treats unsubscribe rows as page evidence even if Gmail rena
 
   assert.equal(response?.onPage, true);
   assert.equal(response?.count, 1);
+});
+
+test('Userscript shows controls on #sub and relies on rows if the route changes again', () => {
+  const row = makeRowButton('one@example.com');
+  const onCurrentRoute = loadUserscript({ getRows: () => [row], hash: '#sub' });
+  const onFutureRoute = loadUserscript({ getRows: () => [row], hash: '#future-route-name' });
+
+  assert.equal(onCurrentRoute.appended(), 1);
+  assert.equal(onFutureRoute.appended(), 1);
 });
 
 test('Content script rejects a second run while one is already active', () => {
