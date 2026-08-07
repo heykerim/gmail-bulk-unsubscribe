@@ -22,10 +22,11 @@
   let cancelled = false;
   let running = false;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  const onSubsPage = () => location.hash.includes('subscriptions');
 
   const getRowButtons = () =>
     [...document.querySelectorAll('button[jscontroller="PIVayb"]')];
+  const onSubsPage = () =>
+    getRowButtons().length > 0 || /^#(?:sub|subscriptions)(?:$|[/?])/i.test(location.hash);
   const senderEmail = (btn) =>
     btn.closest('[data-email]')?.dataset.email || '(unknown)';
 
