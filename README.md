@@ -158,6 +158,11 @@ Not affiliated with or endorsed by Google. Gmail is a trademark of Google LLC.
 This tool automates clicks on Gmail's own UI and may break when Google changes
 that UI. Use at your own risk; unsubscribing cannot be undone.
 
+## Credits
+
+Extension icon is the `mail-x` glyph from [Lucide](https://lucide.dev)
+(ISC License).
+
 ## License
 
 [MIT](LICENSE)

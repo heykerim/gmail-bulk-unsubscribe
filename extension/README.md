@@ -41,10 +41,15 @@ takes about a minute:
 
 ## Icons
 
-This folder needs `icon16.png`, `icon48.png`, and `icon128.png`. They're not
-committed (binary). Drop in any simple mail/slash icon at those sizes, or the
-extension still loads with a default icon if you remove the `icons` / `action.default_icon`
-keys from `manifest.json`.
+Ships with `icons/icon.svg` — the [Lucide](https://lucide.dev) `mail-x` glyph
+(ISC License), which Chrome and Firefox MV3 accept directly, so no PNG export is
+needed. To use your own icon, replace `icon.svg` (or point the `icons` /
+`action.default_icon` keys in `manifest.json` at your own PNGs). Removing those
+keys entirely makes the extension load with the browser's default icon.
+
+> Chrome shows a console note preferring raster icons for the toolbar; the SVG
+> still renders. If you want pixel-perfect toolbar icons, export `icon.svg` to
+> `icon16.png` / `icon48.png` / `icon128.png` and update the manifest.
 
 ## How it works
 
