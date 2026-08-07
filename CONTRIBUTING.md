@@ -26,9 +26,14 @@ stable; you usually won't need to touch it.
 
 - **No new permissions** in the extension without a strong reason — minimal
   permissions are a feature here.
-- **No network calls.** The whole pitch is that nothing leaves the browser.
+- **No outbound Gmail/account data.** Do not add analytics, telemetry, mailbox
+  APIs, or requests that transmit user data. The bookmarklet is the one narrow
+  exception for code retrieval: it fetches the public `unsubscribe.js` from
+  `raw.githubusercontent.com` when launched, but must not upload Gmail data.
 - Keep it readable. People are pasting this into their own console; obfuscated
   or minified code defeats the point.
+- Keep the dry-run default, keep-list behavior, stop control, and single-run
+  guard intact across implementations.
 
 ## Reporting a break
 
