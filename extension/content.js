@@ -17,6 +17,8 @@
     [...document.querySelectorAll('button[jscontroller="PIVayb"]')];
   const senderEmail = (btn) =>
     btn.closest('[data-email]')?.dataset.email || '(unknown)';
+  const isSubscriptionsRoute = () =>
+    /^#(?:sub|subscriptions)(?:$|[/?])/i.test(location.hash);
 
   function isVisible(el) {
     if (!el) return false;
@@ -66,7 +68,7 @@
     if (!initialButtons.length) {
       report(sendProgress, {
         type: 'error',
-        message: 'Found 0 senders. Open the Manage subscriptions page (#subscriptions).',
+        message: 'Found 0 senders. Open Gmail → Manage subscriptions and try again.',
       });
       return;
     }
@@ -147,7 +149,8 @@
 
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg.cmd === 'count') {
-      sendResponse({ count: getRowButtons().length, onPage: location.hash.includes('subscriptions') });
+      const count = getRowButtons().length;
+      sendResponse({ count, onPage: count > 0 || isSubscriptionsRoute() });
       return;
     }
     if (msg.cmd === 'stop') {
