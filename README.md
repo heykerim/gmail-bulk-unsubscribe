@@ -1,8 +1,8 @@
 # Gmail Bulk Unsubscribe
 
 Bulk-unsubscribe from newsletters in Gmail's **Manage subscriptions** view
-(`mail.google.com/mail/u/0/#subscriptions`), which has no bulk-select — so
-normally you'd click through hundreds of them one at a time.
+(`mail.google.com/mail/u/0/#sub`), which has no bulk-select — so normally you'd
+click through hundreds of them one at a time.
 
 This tool clicks each sender's *Unsubscribe* button and confirms the popup for
 you. The unsubscribe logic runs in your browser: **no Gmail message content,
@@ -49,7 +49,7 @@ Chrome" button because it isn't published to a store (see
 
 ### 3. Console snippet (no install)
 
-1. Open `mail.google.com/mail/u/0/#subscriptions`.
+1. Open `mail.google.com/mail/u/0/#sub`.
 2. Open DevTools console: `Cmd+Option+J` (Mac) / `Ctrl+Shift+J` (Win/Linux).
 3. Paste all of [`unsubscribe.js`](unsubscribe.js), press Enter.
 4. Preview safely, then commit:
@@ -89,7 +89,10 @@ The extension stores its keep-list locally in browser extension storage.
 ## Troubleshooting
 
 **"Found 0 senders."**
-- Confirm you're on the `#subscriptions` page, not the inbox or a search.
+- Confirm you're on **Gmail → Manage subscriptions** (currently `#sub`), not the
+  inbox or a search. The extension/userscript also recognize the older
+  `#subscriptions` route and treat actual unsubscribe rows as page evidence, so
+  a future route rename alone should not disable them.
 - Gmail obfuscates and periodically rotates its markup. This tool targets two
   language-independent hooks:
   - Row button: `button[jscontroller="PIVayb"]`
