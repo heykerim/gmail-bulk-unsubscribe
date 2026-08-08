@@ -59,10 +59,14 @@ test('popup migrates only the exact legacy default keep-list and preserves custo
     popup,
     /const LEGACY_DEFAULT_KEEP_LIST = 'security\\nreceipt\\ninstagram\.com\\ngithub\.com';/
   );
-  assert.match(popup, /if \(r\.keepList === LEGACY_DEFAULT_KEEP_LIST\)/);
+  assert.match(
+    popup,
+    /if \(!r\.keepListPlaceholderMigrated && r\.keepList === LEGACY_DEFAULT_KEEP_LIST\)/
+  );
   assert.match(popup, /chrome\.storage\.local\.remove\(\['keepList'\]\)/);
   assert.match(popup, /else if \(typeof r\.keepList === 'string'\)/);
   assert.match(popup, /keepEl\.value = r\.keepList/);
+  assert.match(popup, /keepListPlaceholderMigrated:\s*true/);
 });
 
 test('status row navigates directly to Gmail Manage subscriptions when actionable', () => {
@@ -71,7 +75,10 @@ test('status row navigates directly to Gmail Manage subscriptions when actionabl
     /const SUBSCRIPTIONS_URL = 'https:\/\/mail\.google\.com\/mail\/u\/0\/#sub';/
   );
   assert.match(popup, /chrome\.tabs\.create\(\{ url: SUBSCRIPTIONS_URL \}\)/);
-  assert.match(popup, /chrome\.tabs\.update\(tab\.id, \{ url: SUBSCRIPTIONS_URL \}\)/);
+  assert.match(
+    popup,
+    /chrome\.tabs\.update\(statusActionTab\.id, \{ url: SUBSCRIPTIONS_URL \}\)/
+  );
   assert.match(popup, /statusBar\.classList\.toggle\('is-actionable', actionable\)/);
   assert.match(popup, /statusBar\.setAttribute\('role', 'button'\)/);
   assert.match(popup, /statusBar\.setAttribute\('tabindex', '0'\)/);
