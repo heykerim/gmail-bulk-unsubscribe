@@ -1,11 +1,15 @@
 // popup.js — UI glue. Talks to the content script via chrome.tabs.sendMessage,
 // receives streamed progress via chrome.runtime.onMessage.
 
-async function loadBundledFont(weight, path) {
-  const response = await fetch(chrome.runtime.getURL(path));
-  if (!response.ok) throw new Error(`Could not load ${path}`);
-  const encoded = (await response.text()).trim();
-  const binary = atob(encoded);
+async function loadBundledFont(weight, paths) {
+  const encodedParts = await Promise.all(
+    paths.map(async (path) => {
+      const response = await fetch(chrome.runtime.getURL(path));
+      if (!response.ok) throw new Error(`Could not load ${path}`);
+      return (await response.text()).trim();
+    })
+  );
+  const binary = atob(encodedParts.join(''));
   const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
   const face = new FontFace('Clarity City', bytes.buffer, {
     style: 'normal',
@@ -16,8 +20,8 @@ async function loadBundledFont(weight, path) {
 }
 
 const fontsReady = Promise.all([
-  loadBundledFont('500', 'fonts/medium.b64'),
-  loadBundledFont('600', 'fonts/semibold.b64'),
+  loadBundledFont('500', ['fonts/medium.b64', 'fonts/medium.b64.2']),
+  loadBundledFont('600', ['fonts/semibold.b64', 'fonts/semibold.b64.2']),
 ])
   .catch((error) => console.warn('Could not load bundled Clarity City fonts.', error))
   .finally(() => document.documentElement.classList.add('fonts-ready'));
