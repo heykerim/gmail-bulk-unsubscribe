@@ -37,7 +37,7 @@ const statusEl = $('status');
 const runBtn = $('run');
 const previewBtn = $('preview');
 const stopBtn = $('stop');
-const helpBtn = $('help');
+const githubBtn = $('githubLink');
 const keepEl = $('keeplist');
 const resultsPanel = $('resultsPanel');
 const summaryEl = $('summary');
@@ -45,7 +45,6 @@ const linesEl = $('lines');
 
 let counts = { done: 0, kept: 0, skipped: 0, would: 0 };
 
-// Restore saved keep-list. If none exists, keep the safe defaults in the HTML.
 chrome.storage.local.get(['keepList'], (r) => {
   if (typeof r.keepList === 'string') keepEl.value = r.keepList;
 });
@@ -176,13 +175,12 @@ stopBtn.addEventListener('click', () => {
   });
 });
 
-helpBtn.addEventListener('click', () => {
+githubBtn.addEventListener('click', () => {
   chrome.tabs.create({
-    url: 'https://github.com/heykerim/gmail-bulk-unsubscribe#readme',
+    url: 'https://github.com/heykerim/gmail-bulk-unsubscribe',
   });
 });
 
-// Progress stream from content script.
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.from !== 'content') return;
   const p = msg.payload;
