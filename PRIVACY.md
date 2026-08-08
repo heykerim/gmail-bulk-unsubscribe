@@ -10,7 +10,7 @@ The extension handles only the information needed for its user-facing purpose:
 
 - **Sender email addresses shown in Gmail's Manage subscriptions page.** These are read from the page so the extension can count senders, preview what would be affected, match the keep-list, and click Gmail's own unsubscribe controls.
 - **Your protected-sender keep-list.** Text that you enter in the popup is stored locally using Chrome extension storage so it is available the next time you open the extension.
-- **The active tab URL.** The popup checks the active tab URL to determine whether you are currently in Gmail and whether it should offer to open Gmail's Manage subscriptions page.
+- **The Gmail tab URL when the current tab is Gmail.** The popup uses the Gmail-only host permission to determine whether you are on Gmail and whether Manage subscriptions is available. It does not request permission to inspect arbitrary websites.
 
 The extension does **not** read Gmail message bodies, attachments, passwords, authentication cookies, OAuth tokens, payment information, or contacts.
 
@@ -18,7 +18,7 @@ The extension does **not** read Gmail message bodies, attachments, passwords, au
 
 The keep-list is stored locally in your browser with `chrome.storage.local`. It remains there until you edit or clear it, clear the extension's storage, or remove the extension.
 
-Sender email addresses and the active tab URL are processed transiently for the current action. They are not written to a remote database or sent to the developer.
+Sender email addresses and the Gmail tab URL are processed transiently for the current action. They are not written to a remote database or sent to the developer.
 
 ## Data transmission and sharing
 
@@ -30,11 +30,10 @@ All fonts, icons, JavaScript, and CSS used by the extension are bundled in the e
 
 ## Permissions
 
-- **`activeTab`** — temporary access to the active tab after you invoke the extension, used to determine whether the current tab is Gmail and to provide the correct popup state.
 - **`storage`** — stores your protected-sender keep-list locally.
-- **`https://mail.google.com/*`** — allows the content script to run on Gmail so it can interact with the Manage subscriptions UI.
+- **`https://mail.google.com/*`** — allows the content script to run on Gmail and allows the popup to recognize Gmail so it can interact with the Manage subscriptions UI.
 
-The extension intentionally requests only the permissions used by its current functionality.
+The extension intentionally requests only these permissions. It does not request `activeTab`, `tabs`, `scripting`, `<all_urls>`, OAuth, identity, cookies, history, or network-interception permissions.
 
 ## Bookmarklet note
 
