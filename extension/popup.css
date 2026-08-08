@@ -72,7 +72,7 @@ button {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .brand-icon-wrap,
@@ -104,24 +104,27 @@ button {
   white-space: nowrap;
 }
 
-.icon-help {
+.icon-github {
   width: 31px;
   height: 31px;
   padding: 0;
-  color: #393b42;
+  color: #282a30;
   cursor: pointer;
 }
 
-.icon-help svg {
-  width: 18px;
-  height: 18px;
+.github-mark {
+  width: 15px;
+  height: 15px;
+  display: block;
+  object-fit: contain;
+  opacity: 0.88;
 }
 
 .status-row {
   padding: 0 25px;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   color: #1a1b1f;
 }
 
@@ -141,6 +144,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transform: translateY(-0.25px);
 }
 
 .status-icon svg {
@@ -253,7 +257,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
   border-radius: 12px;
   border: 1px solid transparent;
   font-size: 12.8px;
@@ -264,17 +268,18 @@ button {
 }
 
 .btn-icon {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transform: translateY(-0.25px);
 }
 
 .btn-icon svg {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
@@ -361,24 +366,25 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 8px;
   color: #6d717b;
   background: #fff;
 }
 
 .footer-icon {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #3e4148;
+  transform: translateY(-0.25px);
 }
 
 .footer-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   display: block;
 }
 
