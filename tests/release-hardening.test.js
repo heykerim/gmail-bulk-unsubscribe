@@ -241,7 +241,10 @@ test('Popup uses bundled Clarity City fonts and global minus 0.02em tracking', (
     'base64'
   );
   const semibold = Buffer.from(
-    read('extension/fonts/semibold.b64').trim() + read('extension/fonts/semibold.b64.2').trim(),
+    read('extension/fonts/semibold.b64').trim() +
+      read('extension/fonts/semibold.b64.2a').trim() +
+      read('extension/fonts/semibold.b64.2b').trim() +
+      read('extension/fonts/semibold.b64.2c').trim(),
     'base64'
   );
 
@@ -249,7 +252,7 @@ test('Popup uses bundled Clarity City fonts and global minus 0.02em tracking', (
   assert.match(css, /letter-spacing:\s*-0\.02em/);
   assert.match(popup, /new FontFace\(['"]Clarity City['"]/);
   assert.match(popup, /fonts\/medium\.b64\.2/);
-  assert.match(popup, /fonts\/semibold\.b64\.2/);
+  assert.match(popup, /fonts\/semibold\.b64\.2c/);
   assert.equal(medium.subarray(0, 4).toString(), 'wOF2');
   assert.equal(semibold.subarray(0, 4).toString(), 'wOF2');
   assert.equal(medium.length, 8640);
