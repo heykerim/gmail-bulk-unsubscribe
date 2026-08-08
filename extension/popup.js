@@ -2,19 +2,22 @@
 // receives streamed progress via chrome.runtime.onMessage.
 
 const $ = (id) => document.getElementById(id);
+const statusBar = $('statusBar');
 const statusEl = $('status');
 const runBtn = $('run');
 const previewBtn = $('preview');
 const stopBtn = $('stop');
+const helpBtn = $('help');
 const keepEl = $('keeplist');
+const resultsPanel = $('resultsPanel');
 const summaryEl = $('summary');
 const linesEl = $('lines');
 
 let counts = { done: 0, kept: 0, skipped: 0, would: 0 };
 
-// Restore saved keep-list.
+// Restore saved keep-list. If none exists, keep the safe defaults in the HTML.
 chrome.storage.local.get(['keepList'], (r) => {
-  if (r.keepList) keepEl.value = r.keepList;
+  if (typeof r.keepList === 'string') keepEl.value = r.keepList;
 });
 keepEl.addEventListener('input', () => {
   chrome.storage.local.set({ keepList: keepEl.value });
@@ -32,47 +35,61 @@ function setRunningState(running) {
   stopBtn.disabled = !running;
 }
 
+function setStatus(text, tone = 'neutral') {
+  statusEl.textContent = text;
+  statusBar.dataset.tone = tone;
+}
+
+function showResults() {
+  resultsPanel.classList.remove('is-hidden');
+}
+
+function hideResults() {
+  resultsPanel.classList.add('is-hidden');
+}
+
 async function refreshStatus() {
   const tab = await activeGmailTab();
   if (!tab) {
-    setStatus('Open Gmail to use this.', 'error');
+    setStatus('Open Gmail to use this.', 'danger');
     previewBtn.disabled = true;
     runBtn.disabled = true;
     stopBtn.disabled = true;
     return;
   }
+
   try {
     const res = await chrome.tabs.sendMessage(tab.id, { cmd: 'count' });
     if (!res.onPage) {
-      setStatus('Go to Gmail → Manage subscriptions.', 'error');
+      setStatus('Open Manage subscriptions to use this.', 'danger');
       previewBtn.disabled = true;
       runBtn.disabled = true;
       stopBtn.disabled = true;
-    } else {
-      setStatus(`${res.count} senders found.`, 'ready');
-      setRunningState(false);
+      return;
     }
+
+    const count = Number(res.count || 0);
+    const noun = count === 1 ? 'sender' : 'senders';
+    setStatus(`${count} ${noun} found.`, 'neutral');
+    setRunningState(false);
+    runBtn.disabled = count === 0;
   } catch (_) {
-    setStatus('Reload the Gmail tab, then reopen this.', 'error');
+    setStatus('Reload the Gmail tab, then reopen this.', 'danger');
     previewBtn.disabled = true;
     runBtn.disabled = true;
     stopBtn.disabled = true;
   }
-}
-
-function setStatus(text, cls) {
-  statusEl.textContent = text;
-  statusEl.className = 'status' + (cls ? ' ' + cls : '');
 }
 
 function keepList() {
   return keepEl.value.split('\n').map((s) => s.trim()).filter(Boolean);
 }
 
-function resetLog() {
+function resetLog({ hide = true } = {}) {
   counts = { done: 0, kept: 0, skipped: 0, would: 0 };
   linesEl.innerHTML = '';
   summaryEl.textContent = '';
+  if (hide) hideResults();
 }
 
 function addLine(status, email) {
@@ -82,6 +99,7 @@ function addLine(status, email) {
   li.className = status;
   linesEl.appendChild(li);
   linesEl.scrollTop = linesEl.scrollHeight;
+  showResults();
 }
 
 async function send(cmd, opts) {
@@ -99,25 +117,38 @@ async function startRun(dryRun) {
     if (!response?.started) {
       setRunningState(false);
       if (response?.reason === 'running') {
-        setStatus('A bulk unsubscribe run is already in progress.', 'error');
+        setStatus('A bulk unsubscribe run is already in progress.', 'danger');
       }
+      return;
     }
+
+    showResults();
+    setStatus(dryRun ? 'Previewing senders…' : 'Unsubscribing…', 'neutral');
   } catch (_) {
     setRunningState(false);
-    setStatus('Reload the Gmail tab, then reopen this.', 'error');
+    setStatus('Reload the Gmail tab, then reopen this.', 'danger');
   }
 }
 
 previewBtn.addEventListener('click', () => {
   startRun(true);
 });
+
 runBtn.addEventListener('click', () => {
   if (!confirm('Unsubscribe from all listed senders? This cannot be undone.')) return;
   startRun(false);
 });
+
 stopBtn.addEventListener('click', () => {
+  setStatus('Stopping…', 'neutral');
   send('stop').catch(() => {
-    setStatus('Could not stop the run. Reload Gmail if needed.', 'error');
+    setStatus('Could not stop the run. Reload Gmail if needed.', 'danger');
+  });
+});
+
+helpBtn.addEventListener('click', () => {
+  chrome.tabs.create({
+    url: 'https://github.com/heykerim/gmail-bulk-unsubscribe#readme',
   });
 });
 
@@ -125,25 +156,47 @@ stopBtn.addEventListener('click', () => {
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.from !== 'content') return;
   const p = msg.payload;
+
   if (p.type === 'start') {
     setRunningState(true);
-    summaryEl.textContent = p.dryRun
+    showResults();
+    const text = p.dryRun
       ? `Previewing ${p.total} senders…`
       : `Unsubscribing from ${p.total}…`;
-  } else if (p.type === 'progress') {
+    summaryEl.textContent = text;
+    setStatus(text, 'neutral');
+    return;
+  }
+
+  if (p.type === 'progress') {
     counts[p.status] = (counts[p.status] || 0) + 1;
     addLine(p.status, p.email);
-  } else if (p.type === 'done') {
+    return;
+  }
+
+  if (p.type === 'done') {
     setRunningState(false);
+    showResults();
     const verb = p.dryRun ? 'Would unsubscribe' : 'Unsubscribed';
-    summaryEl.textContent =
+    const text =
       `${verb} ${p.done}, kept ${p.kept}, skipped ${p.skipped}` +
       (p.stopped ? ' (stopped)' : '') + '.';
-    if (!p.dryRun) refreshStatus();
-  } else if (p.type === 'error') {
+    summaryEl.textContent = text;
+    setStatus(text, 'neutral');
+
+    if (!p.dryRun) {
+      setTimeout(() => refreshStatus(), 350);
+    }
+    return;
+  }
+
+  if (p.type === 'error') {
     setRunningState(false);
-    setStatus(p.message, 'error');
+    showResults();
+    summaryEl.textContent = p.message || 'Something went wrong.';
+    setStatus(p.message || 'Something went wrong.', 'danger');
   }
 });
 
+resetLog();
 refreshStatus();
