@@ -9,7 +9,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["storage"],
   "host_permissions": ["https://mail.google.com/*"],
   "action": {
     "default_title": "Gmail Bulk Unsubscribe",
