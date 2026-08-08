@@ -21,7 +21,7 @@ jobs:
           node-version: '22'
 
       - name: Run regression tests
-        run: node --test tests/release-hardening.test.js
+        run: node --test tests/*.test.js
 
       - name: Check JavaScript syntax
         run: |
