@@ -138,8 +138,8 @@ button {
 }
 
 .status-icon {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -148,8 +148,8 @@ button {
 }
 
 .status-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   display: block;
 }
 
@@ -245,7 +245,7 @@ button {
 .actions {
   margin-top: 25px;
   display: grid;
-  grid-template-columns: 145px 150px 103px;
+  grid-template-columns: 150px 145px 103px;
   gap: 10px;
 }
 
@@ -268,8 +268,8 @@ button {
 }
 
 .btn-icon {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -278,8 +278,8 @@ button {
 }
 
 .btn-icon svg {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   display: block;
 }
 
@@ -372,8 +372,8 @@ button {
 }
 
 .footer-icon {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -383,8 +383,8 @@ button {
 }
 
 .footer-icon svg {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   display: block;
 }
 
