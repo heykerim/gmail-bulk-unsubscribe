@@ -224,14 +224,75 @@ test('Popup disables destructive controls while a run is active', () => {
   assert.match(popup, /stopBtn\.disabled\s*=\s*!running/);
 });
 
-test('Popup keeps action buttons on one line and uses concise labels', () => {
+test('Popup matches the approved 480 by 600 reference geometry', () => {
   const css = read('extension/popup.css');
+
+  assert.match(css, /html,\s*body\s*{[^}]*width:\s*480px[^}]*height:\s*600px/s);
+  assert.match(css, /\.popup-card\s*{[^}]*width:\s*468px[^}]*height:\s*588px[^}]*margin:\s*6px/s);
+  assert.match(css, /\.popup-card\s*{[^}]*border-radius:\s*24px/s);
+  assert.match(css, /background:\s*transparent/);
+});
+
+test('Popup uses bundled Clarity City fonts and global minus 0.02em tracking', () => {
+  const css = read('extension/popup.css');
+  const popup = read('extension/popup.js');
+  const medium = Buffer.from(
+    read('extension/fonts/medium.b64').trim() + read('extension/fonts/medium.b64.2').trim(),
+    'base64'
+  );
+  const semibold = Buffer.from(
+    read('extension/fonts/semibold.b64').trim() +
+      read('extension/fonts/semibold.b64.2a').trim() +
+      read('extension/fonts/semibold.b64.2b').trim() +
+      read('extension/fonts/semibold.b64.2c').trim(),
+    'base64'
+  );
+
+  assert.match(css, /font-family:\s*"Clarity City"/);
+  assert.match(css, /letter-spacing:\s*-0\.02em/);
+  assert.match(popup, /new FontFace\(['"]Clarity City['"]/);
+  assert.match(popup, /fonts\/medium\.b64\.2/);
+  assert.match(popup, /fonts\/semibold\.b64\.2c/);
+  assert.equal(medium.subarray(0, 4).toString(), 'wOF2');
+  assert.equal(semibold.subarray(0, 4).toString(), 'wOF2');
+  assert.equal(medium.length, 8640);
+  assert.equal(semibold.length, 8736);
+});
+
+test('Popup preserves the approved copy word for word', () => {
   const html = read('extension/popup.html');
 
-  assert.match(css, /body\s*{[^}]*width:\s*370px/s);
-  assert.match(css, /\.btn\s*{[^}]*white-space:\s*nowrap/s);
-  assert.match(html, />Preview<\/button>/);
-  assert.doesNotMatch(html, /Preview \(dry-run\)/);
+  for (const copy of [
+    'Bulk Unsubscribe',
+    'Protect senders',
+    'One per line. Use email substrings.',
+    'Any sender whose email contains one of these is skipped.',
+    'Preview senders',
+    'Unsubscribe all',
+    'Stop',
+    'Private by default. Runs entirely in your browser.',
+  ]) {
+    assert.match(html, new RegExp(copy.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+});
+
+test('Popup results stay hidden by default and are revealed by popup logic', () => {
+  const html = read('extension/popup.html');
+  const popup = read('extension/popup.js');
+
+  assert.match(html, /id="resultsPanel"[^>]*class="results is-hidden"/);
+  assert.match(popup, /classList\.remove\(['"]is-hidden['"]\)/);
+  assert.match(popup, /classList\.add\(['"]is-hidden['"]\)/);
+});
+
+test('Popup has the approved dynamic status messages', () => {
+  const popup = read('extension/popup.js');
+
+  assert.match(popup, /Open Gmail to use this\./);
+  assert.match(popup, /Open Manage subscriptions to use this\./);
+  assert.match(popup, /sender.*found\./s);
+  assert.match(popup, /Previewing/);
+  assert.match(popup, /Unsubscribing/);
 });
 
 test('Bookmarklet previews after loading and docs do not claim injected UI', () => {
