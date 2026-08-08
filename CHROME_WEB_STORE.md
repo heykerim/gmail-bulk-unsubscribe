@@ -12,19 +12,15 @@ The extension has one narrow purpose: it drives Gmail's existing unsubscribe con
 
 ## Permission justifications
 
-### `activeTab`
-
-> Used only when the user opens the extension popup. It gives the popup temporary access to the active tab URL so it can determine whether the current tab is Gmail and show the correct action. It is not used to read arbitrary page content or browsing history.
-
 ### `storage`
 
 > Stores the user's protected-sender keep-list locally in Chrome extension storage so those preferences persist between popup sessions.
 
 ### Host access: `https://mail.google.com/*`
 
-> Required for the extension's content script to run on Gmail and interact with Gmail's Manage subscriptions UI. The content script reads sender email addresses shown in that view and clicks Gmail's own unsubscribe controls. It does not read message bodies or attachments.
+> Required for the extension's content script to run on Gmail and interact with Gmail's Manage subscriptions UI. It also lets the popup recognize when the current page is Gmail. The content script reads sender email addresses shown in Manage subscriptions and clicks Gmail's own unsubscribe controls. It does not read message bodies or attachments.
 
-The manifest intentionally does **not** request `scripting`, `tabs`, `<all_urls>`, OAuth, identity, cookies, history, or network interception permissions.
+The manifest intentionally does **not** request `activeTab`, `scripting`, `tabs`, `<all_urls>`, OAuth, identity, cookies, history, or network interception permissions.
 
 ## Remote code
 
@@ -40,7 +36,7 @@ Use the dashboard's current checkbox wording, but make sure the declarations com
 
 - **Website content:** sender email addresses visible in Gmail's Manage subscriptions view are processed locally so the extension can count, preview, keep, skip, and unsubscribe senders. They are not transmitted to the developer or a third party.
 - **User-provided content:** the protected-sender keep-list is stored locally with `chrome.storage.local`. It is not transmitted.
-- **Active tab URL / browsing context:** the popup transiently checks the active tab URL only to decide whether the current tab is Gmail. The URL is not retained, profiled, or transmitted.
+- **Gmail page URL/context:** when the active page is Gmail, the popup uses Gmail-only host access to recognize the page and choose the correct status/action. The URL is not retained, profiled, or transmitted, and the extension does not request access to arbitrary websites.
 - **No message bodies or attachments:** the extension does not access Gmail message content, attachments, contacts, credentials, OAuth tokens, authentication cookies, or payment information.
 - **No analytics or advertising:** there is no telemetry, analytics SDK, ad SDK, tracking pixel, sale of data, or personalized advertising.
 
