@@ -1,6 +1,27 @@
 // popup.js — UI glue. Talks to the content script via chrome.tabs.sendMessage,
 // receives streamed progress via chrome.runtime.onMessage.
 
+async function loadBundledFont(weight, path) {
+  const response = await fetch(chrome.runtime.getURL(path));
+  if (!response.ok) throw new Error(`Could not load ${path}`);
+  const encoded = (await response.text()).trim();
+  const binary = atob(encoded);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  const face = new FontFace('Clarity City', bytes.buffer, {
+    style: 'normal',
+    weight,
+  });
+  await face.load();
+  document.fonts.add(face);
+}
+
+const fontsReady = Promise.all([
+  loadBundledFont('500', 'fonts/medium.b64'),
+  loadBundledFont('600', 'fonts/semibold.b64'),
+])
+  .catch((error) => console.warn('Could not load bundled Clarity City fonts.', error))
+  .finally(() => document.documentElement.classList.add('fonts-ready'));
+
 const $ = (id) => document.getElementById(id);
 const statusBar = $('statusBar');
 const statusEl = $('status');
@@ -199,4 +220,4 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 resetLog();
-refreshStatus();
+fontsReady.finally(refreshStatus);
