@@ -172,11 +172,11 @@ Not affiliated with or endorsed by Google. Gmail is a trademark of Google LLC.
 This tool automates clicks on Gmail's own UI and may break when Google changes
 that UI. Use at your own risk; unsubscribing cannot be undone.
 
-## Credits
+## Icon
 
-Extension icon is the `mail-x` glyph from [Lucide](https://lucide.dev)
-(ISC License). See [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) for the
-third-party license notice.
+The browser extension uses the custom `@` artwork in
+`extension/icons/icon-source.png`, with 16/32/48/128 px PNG exports for browser
+manifests.
 
 ## License
 
