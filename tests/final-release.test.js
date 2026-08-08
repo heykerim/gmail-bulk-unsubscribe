@@ -49,8 +49,8 @@ test('Chrome Web Store submission guide includes required release fields', () =>
   assert.match(guide, /storage/);
   assert.match(guide, /mail\.google\.com/);
   assert.match(guide, /No remote code/i);
-  assert.match(guide, /1280.?x.?800/);
-  assert.match(guide, /440.?x.?280/);
+  assert.match(guide, /1280\s*[x×]\s*800/);
+  assert.match(guide, /440\s*[x×]\s*280/);
 });
 
 test('public privacy policy explains local processing and storage', () => {
