@@ -233,12 +233,21 @@ test('Popup matches the approved 480 by 600 reference geometry', () => {
   assert.match(css, /background:\s*transparent/);
 });
 
-test('Popup uses supplied Clarity City fonts and global minus 0.02em tracking', () => {
+test('Popup uses bundled Clarity City fonts and global minus 0.02em tracking', () => {
   const css = read('extension/popup.css');
+  const popup = read('extension/popup.js');
+  const medium = Buffer.from(read('extension/fonts/medium.b64').trim(), 'base64');
+  const semibold = Buffer.from(read('extension/fonts/semibold.b64').trim(), 'base64');
 
-  assert.match(css, /ClarityCity-Medium\.woff2/);
-  assert.match(css, /ClarityCity-SemiBold\.woff2/);
+  assert.match(css, /font-family:\s*"Clarity City"/);
   assert.match(css, /letter-spacing:\s*-0\.02em/);
+  assert.match(popup, /new FontFace\(['"]Clarity City['"]/);
+  assert.match(popup, /fonts\/medium\.b64/);
+  assert.match(popup, /fonts\/semibold\.b64/);
+  assert.equal(medium.subarray(0, 4).toString(), 'wOF2');
+  assert.equal(semibold.subarray(0, 4).toString(), 'wOF2');
+  assert.equal(medium.length, 8640);
+  assert.equal(semibold.length, 8736);
 });
 
 test('Popup preserves the approved copy word for word', () => {
