@@ -24,7 +24,7 @@ Pick whichever fits. All share the same logic and the same safety defaults.
 
 ### 1. Browser extension (best for non-devs — popup UI)
 
-**Install (no store account needed):**
+**Install manually:**
 
 1. On this repo, click the green **Code** button → **Download ZIP**, then unzip.
    (Or use a [release ZIP](https://github.com/heykerim/gmail-bulk-unsubscribe/releases) if one is attached.)
@@ -36,9 +36,9 @@ Pick whichever fits. All share the same logic and the same safety defaults.
 4. Open **Gmail → Manage subscriptions** and click the extension icon. You get a
    popup with **Preview**, **Unsubscribe all**, **Stop**, and a saved keep-list.
 
-Full details in [`extension/README.md`](extension/README.md). There's no "Add to
-Chrome" button because it isn't published to a store (see
-[Maintenance](#maintenance)).
+Full details are in [`extension/README.md`](extension/README.md). Chrome Web
+Store submission material is in [`CHROME_WEB_STORE.md`](CHROME_WEB_STORE.md);
+until the store listing is live, use the manual install above.
 
 ### 2. Userscript (one click, most reliable without an extension)
 
@@ -62,9 +62,9 @@ Chrome" button because it isn't published to a store (see
 
 ### 4. Bookmarklet (one click, no extension)
 
-See [`bookmarklet.md`](bookmarklet.md). The bookmarklet downloads the public
-`unsubscribe.js` from GitHub when clicked, then automatically runs the safe
-preview.
+See [`bookmarklet.md`](bookmarklet.md). The v1 bookmarklet downloads the public
+`unsubscribe.js` from the immutable `v1.0.0` tag when clicked, then
+automatically runs the safe preview.
 
 ---
 
@@ -145,19 +145,20 @@ also the exact shape of the **"self-XSS"** scam Google warns about when it says
 - The unsubscribe logic accesses no message content and sends no Gmail/account
   data anywhere. The extension/userscript/console versions add no third-party
   requests. The bookmarklet makes one request to `raw.githubusercontent.com`
-  to retrieve this repo's public `unsubscribe.js` before running the same logic.
+  to retrieve the tagged public `unsubscribe.js` before running the same logic.
 - Never paste a *minified* or obfuscated version someone hands you. If you can't
   read it, don't run it.
+
+See [`PRIVACY.md`](PRIVACY.md) for the packaged extension's privacy policy.
 
 ---
 
 ## Maintenance
 
-This is a community drop, shared as-is. It isn't actively maintained and isn't
-published to any extension store. Gmail changes its markup from time to time, so
-a selector may eventually need updating — the fix is documented under
-[Troubleshooting](#troubleshooting) (find the new `jscontroller` value and
-update one line).
+This project is **maintained as a small open-source utility** with regression
+checks for the Gmail selectors, popup behavior, manifest, and extension icons.
+Gmail can still change its markup without notice, so a selector may eventually
+need updating — the fix is documented under [Troubleshooting](#troubleshooting).
 
 **Pull requests welcome**, especially for updated selectors or browser fixes —
 see [CONTRIBUTING.md](CONTRIBUTING.md) for the two-minute selector-fix guide. If
