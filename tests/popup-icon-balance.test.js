@@ -14,7 +14,7 @@ function block(selector) {
   return match[1];
 }
 
-test('header uses 12px logo-to-title spacing and a minimal GitHub control', () => {
+test('header keeps 12px logo-to-title spacing and a minimal GitHub control', () => {
   assert.match(block('.header-left'), /gap:\s*12px/);
   assert.match(block('.icon-github'), /width:\s*31px/);
   assert.match(block('.icon-github'), /height:\s*31px/);
@@ -26,33 +26,46 @@ test('header uses 12px logo-to-title spacing and a minimal GitHub control', () =
   assert.doesNotMatch(popup, /helpBtn/);
 });
 
-test('popup functional icons use the Lucide icon family', () => {
-  for (const icon of ['mail', 'eye', 'mail-x', 'square', 'shield-check']) {
-    assert.match(html, new RegExp(`data-lucide="${icon}"`));
-  }
+test('action order is unsubscribe, preview, stop', () => {
+  const runIndex = html.indexOf('id="run"');
+  const previewIndex = html.indexOf('id="preview"');
+  const stopIndex = html.indexOf('id="stop"');
+  assert.ok(runIndex > -1 && previewIndex > -1 && stopIndex > -1);
+  assert.ok(runIndex < previewIndex, 'Unsubscribe all should be left of Preview senders');
+  assert.ok(previewIndex < stopIndex, 'Preview senders should be left of Stop');
+  assert.match(block('.actions'), /grid-template-columns:\s*150px\s+145px\s+103px/);
 });
 
-test('status icon and copy are optically centered with a tighter gap', () => {
+test('popup uses the exact requested 12x12 icon set', () => {
+  for (const title of ['envelope', 'eye', 'envelope-minus', 'media-stop', 'lock']) {
+    assert.match(html, new RegExp(`<title>${title}<\\/title>`));
+  }
+  assert.doesNotMatch(html, /data-lucide=/);
+});
+
+test('status icon and copy use the 12px envelope with a tight gap', () => {
   assert.match(block('.status-row'), /gap:\s*10px/);
-  assert.match(block('.status-icon'), /width:\s*16px/);
-  assert.match(block('.status-icon'), /height:\s*16px/);
+  assert.match(block('.status-icon'), /width:\s*12px/);
+  assert.match(block('.status-icon'), /height:\s*12px/);
+  assert.match(block('.status-icon svg'), /width:\s*12px/);
+  assert.match(block('.status-icon svg'), /height:\s*12px/);
   assert.match(block('.status-icon'), /transform:\s*translateY\(-0\.25px\)/);
 });
 
-test('button icon system uses 16px Lucide icons and a 7px gap', () => {
+test('button icons are 12px and optically centered with a 7px gap', () => {
   assert.match(block('.btn'), /gap:\s*7px/);
-  assert.match(block('.btn-icon'), /width:\s*16px/);
-  assert.match(block('.btn-icon'), /height:\s*16px/);
+  assert.match(block('.btn-icon'), /width:\s*12px/);
+  assert.match(block('.btn-icon'), /height:\s*12px/);
   assert.match(block('.btn-icon'), /transform:\s*translateY\(-0\.25px\)/);
-  assert.match(block('.btn-icon svg'), /width:\s*16px/);
-  assert.match(block('.btn-icon svg'), /height:\s*16px/);
+  assert.match(block('.btn-icon svg'), /width:\s*12px/);
+  assert.match(block('.btn-icon svg'), /height:\s*12px/);
 });
 
-test('footer icon system uses a 15px Lucide icon and an 8px gap', () => {
+test('footer uses the requested 12px lock icon and an 8px gap', () => {
   assert.match(block('.footer'), /gap:\s*8px/);
-  assert.match(block('.footer-icon'), /width:\s*15px/);
-  assert.match(block('.footer-icon'), /height:\s*15px/);
+  assert.match(block('.footer-icon'), /width:\s*12px/);
+  assert.match(block('.footer-icon'), /height:\s*12px/);
   assert.match(block('.footer-icon'), /transform:\s*translateY\(-0\.25px\)/);
-  assert.match(block('.footer-icon svg'), /width:\s*15px/);
-  assert.match(block('.footer-icon svg'), /height:\s*15px/);
+  assert.match(block('.footer-icon svg'), /width:\s*12px/);
+  assert.match(block('.footer-icon svg'), /height:\s*12px/);
 });
