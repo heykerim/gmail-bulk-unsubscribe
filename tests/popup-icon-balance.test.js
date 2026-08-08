@@ -21,7 +21,7 @@ test('header uses 12px logo-to-title spacing and a minimal GitHub control', () =
   assert.match(block('.github-mark'), /width:\s*15px/);
   assert.match(block('.github-mark'), /height:\s*15px/);
   assert.match(html, /id="githubLink"/);
-  assert.match(html, /icons\/github-mark\.png/);
+  assert.match(html, /src="data:image\/png;base64,/);
   assert.doesNotMatch(html, /id="help"/);
   assert.doesNotMatch(popup, /helpBtn/);
 });
