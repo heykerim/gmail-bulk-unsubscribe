@@ -72,13 +72,13 @@ button {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .brand-icon-wrap,
 .icon-circle {
-  width: 47px;
-  height: 47px;
+  width: 44px;
+  height: 44px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -89,8 +89,8 @@ button {
 }
 
 .brand-icon {
-  width: 39px;
-  height: 39px;
+  width: 31px;
+  height: 31px;
   display: block;
   object-fit: contain;
 }
@@ -100,28 +100,28 @@ button {
   color: #050506;
   font-size: 18.5px;
   font-weight: 600;
-  line-height: 1;
+  line-height: 0.98;
   white-space: nowrap;
 }
 
 .icon-help {
-  width: 33px;
-  height: 33px;
+  width: 31px;
+  height: 31px;
   padding: 0;
   color: #393b42;
   cursor: pointer;
 }
 
 .icon-help svg {
-  width: 21px;
-  height: 21px;
+  width: 18px;
+  height: 18px;
 }
 
 .status-row {
   padding: 0 25px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 11px;
   color: #1a1b1f;
 }
 
@@ -135,8 +135,8 @@ button {
 }
 
 .status-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -144,8 +144,8 @@ button {
 }
 
 .status-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
@@ -253,7 +253,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   border-radius: 12px;
   border: 1px solid transparent;
   font-size: 12.8px;
@@ -264,8 +264,8 @@ button {
 }
 
 .btn-icon {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -273,8 +273,8 @@ button {
 }
 
 .btn-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   display: block;
 }
 
@@ -361,14 +361,14 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 11px;
+  gap: 9px;
   color: #6d717b;
   background: #fff;
 }
 
 .footer-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -377,8 +377,8 @@ button {
 }
 
 .footer-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
