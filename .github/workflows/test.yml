@@ -13,12 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
+          package-manager-cache: false
 
       - name: Run regression tests
         run: node --test tests/*.test.js
@@ -53,3 +54,22 @@ jobs:
               assert (width, height) == size, f'{name}: expected {size}, got {(width, height)}'
               print(f'{name}: {width}x{height}')
           PY
+
+      - name: Build Chrome Web Store package
+        run: bash scripts/package-extension.sh
+
+      - name: Validate Chrome Web Store package
+        run: |
+          test -f dist/gmail-bulk-unsubscribe-v1.0.0.zip
+          unzip -Z1 dist/gmail-bulk-unsubscribe-v1.0.0.zip | grep -qx 'manifest.json'
+          if unzip -Z1 dist/gmail-bulk-unsubscribe-v1.0.0.zip | grep -q '^extension/'; then
+            echo 'Store archive must contain extension files at the archive root.' >&2
+            exit 1
+          fi
+
+      - name: Upload Chrome Web Store package
+        uses: actions/upload-artifact@v4
+        with:
+          name: gmail-bulk-unsubscribe-v1.0.0-store-package
+          path: dist/gmail-bulk-unsubscribe-v1.0.0.zip
+          if-no-files-found: error

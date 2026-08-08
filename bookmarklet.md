@@ -10,17 +10,19 @@ you still explicitly run `unsubAll({ dryRun: false })` in the console to act.
 1. Show your bookmarks bar (Chrome/Edge: `Cmd/Ctrl+Shift+B`).
 2. Create a new bookmark. Name it **Gmail Bulk Unsubscribe**.
 3. Paste the line below as the bookmark's **URL**.
-4. Go to `https://mail.google.com/mail/u/0/#subscriptions`, click the bookmark.
+4. Go to `https://mail.google.com/mail/u/0/#sub`, click the bookmark.
 5. Open the console (`Cmd/Ctrl+Option/Alt+J`) to see the preview and run
    `unsubAll({ dryRun: false })` when you're ready.
 
 ## Bookmarklet URL
 
 > Replace the username in the URL below if you fork this. It retrieves the
-> public `unsubscribe.js` file from this repo when you click the bookmark.
+> public `unsubscribe.js` file from the immutable `v1.0.0` release tag when you
+> click the bookmark, so a future change to `main` cannot silently change a v1
+> bookmarklet install.
 
 ```
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/heykerim/gmail-bulk-unsubscribe/main/unsubscribe.js';s.onload=function(){unsubAll();s.remove();};s.onerror=function(){console.error('Gmail Bulk Unsubscribe: GitHub script load was blocked. Use the console or userscript method instead.');};document.body.appendChild(s);})();
+javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/heykerim/gmail-bulk-unsubscribe/v1.0.0/unsubscribe.js';s.onload=function(){unsubAll();s.remove();};s.onerror=function(){console.error('Gmail Bulk Unsubscribe: GitHub script load was blocked. Use the console or userscript method instead.');};document.body.appendChild(s);})();
 ```
 
 ### Privacy and Content-Security-Policy
