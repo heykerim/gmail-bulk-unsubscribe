@@ -224,13 +224,14 @@ test('Popup disables destructive controls while a run is active', () => {
   assert.match(popup, /stopBtn\.disabled\s*=\s*!running/);
 });
 
-test('Popup matches the approved 480 by 600 reference geometry', () => {
+test('Popup fills the native 480 by 600 extension surface', () => {
   const css = read('extension/popup.css');
 
   assert.match(css, /html,\s*body\s*{[^}]*width:\s*480px[^}]*height:\s*600px/s);
-  assert.match(css, /\.popup-card\s*{[^}]*width:\s*468px[^}]*height:\s*588px[^}]*margin:\s*6px/s);
-  assert.match(css, /\.popup-card\s*{[^}]*border-radius:\s*24px/s);
-  assert.match(css, /background:\s*transparent/);
+  assert.match(css, /\.popup-card\s*{[^}]*width:\s*480px[^}]*height:\s*600px[^}]*margin:\s*0/s);
+  assert.match(css, /\.popup-card\s*{[^}]*border:\s*0[^}]*border-radius:\s*0/s);
+  assert.match(css, /background:\s*var\(--surface\)/);
+  assert.doesNotMatch(css, /\.popup-card\s*{[^}]*width:\s*468px/s);
 });
 
 test('Popup uses bundled Clarity City fonts and global minus 0.02em tracking', () => {
