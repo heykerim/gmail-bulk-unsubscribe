@@ -21,7 +21,12 @@ async function loadBundledFont(weight, paths) {
 
 const fontsReady = Promise.all([
   loadBundledFont('500', ['fonts/medium.b64', 'fonts/medium.b64.2']),
-  loadBundledFont('600', ['fonts/semibold.b64', 'fonts/semibold.b64.2']),
+  loadBundledFont('600', [
+    'fonts/semibold.b64',
+    'fonts/semibold.b64.2a',
+    'fonts/semibold.b64.2b',
+    'fonts/semibold.b64.2c',
+  ]),
 ])
   .catch((error) => console.warn('Could not load bundled Clarity City fonts.', error))
   .finally(() => document.documentElement.classList.add('fonts-ready'));
