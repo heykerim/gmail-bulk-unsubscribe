@@ -37,19 +37,15 @@ takes about a minute:
 | `manifest.json` | MV3 manifest (Chrome + Firefox via `browser_specific_settings`) |
 | `content.js` | Runs on Gmail; holds the unsubscribe logic; talks to the popup |
 | `popup.html` / `popup.css` / `popup.js` | The toolbar popup UI |
-| `icons/icon16.png` / `icon32.png` / `icon48.png` / `icon128.png` | Raster toolbar/extension icons |
-| `icons/icon.svg` | Lucide source artwork kept for future icon exports |
+| `icons/icon-source.png` | Canonical 164×164 `@` icon artwork |
+| `icons/icon16.png` / `icon32.png` / `icon48.png` / `icon128.png` | Resized toolbar/extension icons generated from the source artwork |
 
 ## Icons
 
-The manifest uses PNG icons at 16, 32, 48, and 128 px for Chromium
-compatibility. `icons/icon.svg` is kept as the editable source artwork, but it
-is not referenced by the manifest because Chromium extension manifests do not
-support SVG files for declared extension icons.
-
-The artwork is the [Lucide](https://lucide.dev) `mail-x` glyph. See
-[`../THIRD_PARTY_LICENSES.md`](../THIRD_PARTY_LICENSES.md) for its ISC license
-notice.
+The project uses the custom `@` artwork in `icons/icon-source.png` as the single
+source of truth. The manifest references PNG exports at 16, 32, 48, and 128 px
+for Chromium compatibility. If the icon ever changes, replace `icon-source.png`
+and regenerate those four sizes from it.
 
 ## How it works
 

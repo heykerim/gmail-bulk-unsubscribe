@@ -107,10 +107,19 @@ function loadUserscript({ getRows, hash = '#sub' } = {}) {
   return { appended: () => appended };
 }
 
-test('Manifest does not declare SVG toolbar icons for Chromium', () => {
+test('Manifest declares PNG toolbar icons for Chromium', () => {
   const manifest = JSON.parse(read('extension/manifest.json'));
   const declared = JSON.stringify({ icons: manifest.icons, action: manifest.action?.default_icon });
   assert.doesNotMatch(declared, /\.svg/i);
+  assert.match(declared, /icon16\.png/);
+  assert.match(declared, /icon32\.png/);
+  assert.match(declared, /icon48\.png/);
+  assert.match(declared, /icon128\.png/);
+});
+
+test('Custom @ icon source is preserved and old Lucide SVG is gone', () => {
+  assert.equal(fs.existsSync(path.join(root, 'extension/icons/icon-source.png')), true);
+  assert.equal(fs.existsSync(path.join(root, 'extension/icons/icon.svg')), false);
 });
 
 test('Content script recognizes Gmail current #sub route', () => {
@@ -225,12 +234,6 @@ test('Popup keeps action buttons on one line and uses concise labels', () => {
   assert.doesNotMatch(html, /Preview \(dry-run\)/);
 });
 
-test('Editable icon source has a transparent background and 24px Lucide viewBox', () => {
-  const svg = read('extension/icons/icon.svg');
-  assert.match(svg, /viewBox="0 0 24 24"/);
-  assert.doesNotMatch(svg, /<rect\b/i);
-});
-
 test('Bookmarklet previews after loading and docs do not claim injected UI', () => {
   const bookmarklet = read('bookmarklet.md');
   assert.match(bookmarklet, /onload[^\n]*unsubAll\(\)/);
@@ -242,10 +245,4 @@ test('Privacy wording distinguishes local logic from bookmarklet code fetch', ()
   assert.doesNotMatch(readme, /It makes \*\*no network requests\*\*/);
   assert.match(readme, /bookmarklet/i);
   assert.match(readme, /raw\.githubusercontent\.com/i);
-});
-
-test('Lucide third-party license notice is included', () => {
-  const notice = read('THIRD_PARTY_LICENSES.md');
-  assert.match(notice, /ISC License/);
-  assert.match(notice, /Lucide Icons and Contributors/);
 });
