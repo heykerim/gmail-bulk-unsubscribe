@@ -1,6 +1,9 @@
 // popup.js — UI glue. Talks to the content script via chrome.tabs.sendMessage,
 // receives streamed progress via chrome.runtime.onMessage.
 
+const SUBSCRIPTIONS_URL = 'https://mail.google.com/mail/u/0/#sub';
+const LEGACY_DEFAULT_KEEP_LIST = 'security\nreceipt\ninstagram.com\ngithub.com';
+
 async function loadBundledFont(weight, paths) {
   const encodedParts = await Promise.all(
     paths.map(async (path) => {
@@ -44,10 +47,22 @@ const summaryEl = $('summary');
 const linesEl = $('lines');
 
 let counts = { done: 0, kept: 0, skipped: 0, would: 0 };
+let statusActionTab = null;
+let statusActionEnabled = false;
 
-chrome.storage.local.get(['keepList'], (r) => {
-  if (typeof r.keepList === 'string') keepEl.value = r.keepList;
+chrome.storage.local.get(['keepList', 'keepListPlaceholderMigrated'], (r) => {
+  if (!r.keepListPlaceholderMigrated && r.keepList === LEGACY_DEFAULT_KEEP_LIST) {
+    keepEl.value = '';
+    chrome.storage.local.remove(['keepList']);
+  } else if (typeof r.keepList === 'string') {
+    keepEl.value = r.keepList;
+  }
+
+  if (!r.keepListPlaceholderMigrated) {
+    chrome.storage.local.set({ keepListPlaceholderMigrated: true });
+  }
 });
+
 keepEl.addEventListener('input', () => {
   chrome.storage.local.set({ keepList: keepEl.value });
 });
@@ -69,6 +84,38 @@ function setStatus(text, tone = 'neutral') {
   statusBar.dataset.tone = tone;
 }
 
+function setStatusAction(actionable, tab = null) {
+  statusActionEnabled = actionable;
+  statusActionTab = actionable ? tab : null;
+  statusBar.classList.toggle('is-actionable', actionable);
+
+  if (actionable) {
+    statusBar.setAttribute('role', 'button');
+    statusBar.setAttribute('tabindex', '0');
+    statusBar.setAttribute('aria-label', `${statusEl.textContent} Open Gmail Manage subscriptions.`);
+  } else {
+    statusBar.removeAttribute('role');
+    statusBar.removeAttribute('tabindex');
+    statusBar.removeAttribute('aria-label');
+  }
+}
+
+async function activateStatusAction() {
+  if (!statusActionEnabled) return;
+
+  try {
+    if (statusActionTab?.id) {
+      await chrome.tabs.update(statusActionTab.id, { url: SUBSCRIPTIONS_URL });
+    } else {
+      await chrome.tabs.create({ url: SUBSCRIPTIONS_URL });
+    }
+    window.close();
+  } catch (_) {
+    setStatus('Could not open Gmail. Try again.', 'danger');
+    setStatusAction(false);
+  }
+}
+
 function showResults() {
   resultsPanel.classList.remove('is-hidden');
 }
@@ -81,6 +128,7 @@ async function refreshStatus() {
   const tab = await activeGmailTab();
   if (!tab) {
     setStatus('Open Gmail to use this.', 'danger');
+    setStatusAction(true);
     previewBtn.disabled = true;
     runBtn.disabled = true;
     stopBtn.disabled = true;
@@ -91,6 +139,7 @@ async function refreshStatus() {
     const res = await chrome.tabs.sendMessage(tab.id, { cmd: 'count' });
     if (!res.onPage) {
       setStatus('Open Manage subscriptions to use this.', 'danger');
+      setStatusAction(true, tab);
       previewBtn.disabled = true;
       runBtn.disabled = true;
       stopBtn.disabled = true;
@@ -100,10 +149,12 @@ async function refreshStatus() {
     const count = Number(res.count || 0);
     const noun = count === 1 ? 'sender' : 'senders';
     setStatus(`${count} ${noun} found.`, 'neutral');
+    setStatusAction(false);
     setRunningState(false);
     runBtn.disabled = count === 0;
   } catch (_) {
     setStatus('Reload the Gmail tab, then reopen this.', 'danger');
+    setStatusAction(false);
     previewBtn.disabled = true;
     runBtn.disabled = true;
     stopBtn.disabled = true;
@@ -139,6 +190,7 @@ async function send(cmd, opts) {
 
 async function startRun(dryRun) {
   resetLog();
+  setStatusAction(false);
   setRunningState(true);
 
   try {
@@ -159,6 +211,17 @@ async function startRun(dryRun) {
   }
 }
 
+statusBar.addEventListener('click', () => {
+  activateStatusAction();
+});
+
+statusBar.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    activateStatusAction();
+  }
+});
+
 previewBtn.addEventListener('click', () => {
   startRun(true);
 });
@@ -169,6 +232,7 @@ runBtn.addEventListener('click', () => {
 });
 
 stopBtn.addEventListener('click', () => {
+  setStatusAction(false);
   setStatus('Stopping…', 'neutral');
   send('stop').catch(() => {
     setStatus('Could not stop the run. Reload Gmail if needed.', 'danger');
@@ -186,6 +250,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   const p = msg.payload;
 
   if (p.type === 'start') {
+    setStatusAction(false);
     setRunningState(true);
     showResults();
     const text = p.dryRun
@@ -203,6 +268,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 
   if (p.type === 'done') {
+    setStatusAction(false);
     setRunningState(false);
     showResults();
     const verb = p.dryRun ? 'Would unsubscribe' : 'Unsubscribed';
@@ -219,6 +285,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 
   if (p.type === 'error') {
+    setStatusAction(false);
     setRunningState(false);
     showResults();
     summaryEl.textContent = p.message || 'Something went wrong.';
