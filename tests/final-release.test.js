@@ -8,8 +8,17 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 test('manifest uses only permissions needed by the current popup', () => {
   const manifest = JSON.parse(read('extension/manifest.json'));
-  assert.deepEqual(manifest.permissions, ['activeTab', 'storage']);
+  assert.deepEqual(manifest.permissions, ['storage']);
   assert.deepEqual(manifest.host_permissions, ['https://mail.google.com/*']);
+});
+
+test('release docs match the storage-only permission model', () => {
+  const guide = read('CHROME_WEB_STORE.md');
+  const privacy = read('PRIVACY.md');
+  assert.doesNotMatch(guide, /### `activeTab`/);
+  assert.doesNotMatch(privacy, /\*\*`activeTab`\*\*/);
+  assert.match(guide, /### `storage`/);
+  assert.match(guide, /Host access: `https:\/\/mail\.google\.com\/\*`/);
 });
 
 test('bookmarklet docs use the current Gmail route and immutable v1 script URL', () => {
@@ -45,7 +54,6 @@ test('Chrome Web Store submission guide includes required release fields', () =>
   ]) {
     assert.match(guide, new RegExp(`## ${heading}`));
   }
-  assert.match(guide, /activeTab/);
   assert.match(guide, /storage/);
   assert.match(guide, /mail\.google\.com/);
   assert.match(guide, /No remote code/i);
