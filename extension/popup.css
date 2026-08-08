@@ -20,7 +20,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: transparent;
+  background: var(--surface);
   color: var(--text);
   font-family: "Clarity City", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-weight: 500;
@@ -43,15 +43,15 @@ button {
 }
 
 .popup-card {
-  width: 468px;
-  height: 588px;
-  margin: 6px;
+  width: 480px;
+  height: 600px;
+  margin: 0;
   display: grid;
   grid-template-rows: 84px 1px 51px 1px minmax(0, 1fr) 1px 54px;
   overflow: hidden;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 24px;
+  border: 0;
+  border-radius: 0;
 }
 
 .rule {
@@ -110,6 +110,22 @@ button {
   padding: 0;
   color: #282a30;
   cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+
+.icon-github:hover {
+  background: #f6f6f7;
+  border-color: #dcdde1;
+}
+
+.icon-github:active {
+  background: #ececef;
+  transform: translateY(0.5px);
+}
+
+.icon-github:focus-visible {
+  outline: 2px solid #111114;
+  outline-offset: 2px;
 }
 
 .github-mark {
@@ -126,6 +142,7 @@ button {
   align-items: center;
   gap: 10px;
   color: #1a1b1f;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .status-row[data-tone="danger"] {
@@ -135,6 +152,25 @@ button {
 .status-row[data-tone="neutral"],
 .status-row[data-tone="positive"] {
   color: #1a1b1f;
+}
+
+.status-row.is-actionable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.status-row.is-actionable:hover {
+  background: #fff5f4;
+  color: #cf1f1b;
+}
+
+.status-row.is-actionable:active {
+  background: #ffebe9;
+}
+
+.status-row.is-actionable:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(229, 36, 32, 0.22);
 }
 
 .status-icon {
@@ -229,6 +265,11 @@ button {
   line-height: 1.78;
 }
 
+.keep-textarea::placeholder {
+  color: #8f939d;
+  opacity: 1;
+}
+
 .keep-textarea:focus {
   border-color: #d2d3d7;
 }
@@ -265,6 +306,12 @@ button {
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 80ms ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #111114;
+  outline-offset: 2px;
 }
 
 .btn-icon {
@@ -289,10 +336,30 @@ button {
   border-color: #111114;
 }
 
+.btn-outline:not(:disabled):hover {
+  background: #f6f6f7;
+}
+
+.btn-outline:not(:disabled):active {
+  background: #ececef;
+  transform: translateY(0.5px);
+}
+
 .btn-primary {
   color: #fff;
   background: #000;
   border-color: #000;
+}
+
+.btn-primary:not(:disabled):hover {
+  background: #171717;
+  border-color: #171717;
+}
+
+.btn-primary:not(:disabled):active {
+  background: #292929;
+  border-color: #292929;
+  transform: translateY(0.5px);
 }
 
 .btn-stop {
@@ -302,15 +369,29 @@ button {
 }
 
 .btn-outline:disabled,
+.btn-primary:disabled,
+.btn-stop:disabled {
+  cursor: default;
+}
+
+.btn-outline:disabled,
 .btn-primary:disabled {
   opacity: 1;
-  cursor: default;
 }
 
 .btn-stop:not(:disabled) {
   color: #111114;
   border-color: #111114;
   cursor: pointer;
+}
+
+.btn-stop:not(:disabled):hover {
+  background: #f6f6f7;
+}
+
+.btn-stop:not(:disabled):active {
+  background: #ececef;
+  transform: translateY(0.5px);
 }
 
 .results {
